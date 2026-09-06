@@ -1,0 +1,23 @@
+# Environment Variables
+.env
+
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual Environments
+venv/
+.venv/
+env/
+
+# Data & Database Persistence
+data/chroma_db/
+data/uploads/pdf_reports/
+data/business_agent.db
+
+# IDE & System Files
+.vscode/
+.idea/
+.DS_Store
