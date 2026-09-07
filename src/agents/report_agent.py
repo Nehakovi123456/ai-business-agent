@@ -69,13 +69,17 @@ def report_agent(state: AgentState) -> AgentState:
         fact_table_md += f"| {item.get('claim')} | `{item.get('status')}` | {item.get('reason')} |\n"
 
     # 6. RAG & Web Sources Transparency Markdown
-    rag_sources_md = ""
+    rag_sources_list = []
     for doc in rag_sources:
         tag = "[SOURCE FACT]" if doc.get("is_user_knowledge_base", False) else "[KNOWLEDGE STATUS]"
-        rag_sources_md += f"- **Document:** `{doc.get('filename')}` | **Page:** {doc.get('page_number', 1)} | **Chunk ID:** `{doc.get('chunk_id')}` `{tag}`\n  - *Extracted FactSnippet*: {doc.get('content', '')[:160]}...\n"
+        rag_sources_list.append(f"- **Document:** `{doc.get('filename')}` | **Page:** {doc.get('page_number', 1)} | **Chunk ID:** `{doc.get('chunk_id')}` `{tag}`\n  - *Extracted FactSnippet*: {doc.get('content', '')[:160]}...")
 
+    rag_sources_md = "\n".join(rag_sources_list)
     web_sources_md = "\n".join([f"- [{res.get('title', 'Web Source')}]({res.get('url', '#')}): {res.get('snippet', '')[:140]}..." for res in state.get('research_data', [])])
     why_dec_list = "\n".join([str(factor) for factor in why_dec.get('key_decision_factors', [])])
+
+    rag_display_str = rag_sources_md if rag_sources_md else "_No active company document uploaded to current knowledge base._"
+    web_display_str = web_sources_md if web_sources_md else "_No external web sources referenced._"
 
     # Construct Complete Markdown Business Report
     report_md = f"""# 📊 BUSINESS DECISION REPORT
@@ -143,10 +147,10 @@ Based on multi-agent market evaluation, internal document RAG retrieval, competi
 ## 📚 Evidence Used & RAG Transparency
 
 ### 📄 Active Company Documents & Extracted Source Facts
-{rag_sources_md if rag_sources_md else "_No active company document uploaded to current knowledge base._\n"}
+{rag_display_str}
 
 ### 🌐 External Web & Market Intelligence
-{web_sources_md if web_sources_md else "_No external web sources referenced._\n"}
+{web_display_str}
 """
 
     report_json = {
