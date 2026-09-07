@@ -37,9 +37,13 @@ def report_agent(state: AgentState) -> AgentState:
     for s in scenarios_list:
         scenario_table_md += f"| **{s.get('name')}** | {s.get('unit_price')} | {s.get('unit_cost')} | {s.get('volume')} | {s.get('revenue')} | `{s.get('unit_margin_pct')}` | {s.get('plant_capacity_utilization')} | `{s.get('risk_rating')}` | **{s.get('feasibility_score')}/10** |\n"
 
-    # 4. Strategic Action Plan Markdown (Feature 1 - Immediate, 30/60/90 days, Milestones, Resources, KPIs, Dependencies)
+    # 4. Strategic Action Plan Lists (Clean Python 3.11 String Joins)
+    immediate_actions_list = "\n".join([f"- {act}" for act in action_plan.get('immediate_actions', [])])
+    key_milestones_list = "\n".join([f"- {m}" for m in action_plan.get('key_milestones', [])])
+    kpis_list = "\n".join([f"- `{kpi}`" for kpi in action_plan.get('kpis', [])])
+
     action_plan_md = f"""### ⚡ Immediate Actions (Next 1-14 Days)
-{"".join([f"- {act}\n" for act in action_plan.get('immediate_actions', [])])}
+{immediate_actions_list}
 
 ### 📅 30 / 60 / 90-Day Execution Roadmap
 - **30-Day Action:** {action_plan.get('action_30_day', 'Initiate pilot marketing.')}
@@ -47,13 +51,13 @@ def report_agent(state: AgentState) -> AgentState:
 - **90-Day Action:** {action_plan.get('action_90_day', 'Deliver pilot batch & evaluate metrics.')}
 
 ### 🏁 Key Milestones
-{"".join([f"- {m}\n" for m in action_plan.get('key_milestones', [])])}
+{key_milestones_list}
 
 ### 🛠️ Required Resources & Capital Allocation
 - **Resources:** {action_plan.get('required_resources', 'Allocated Operations Budget')}
 
 ### 📈 KPIs & Success Metrics
-{"".join([f"- `{kpi}`\n" for kpi in action_plan.get('kpis', [])])}
+{kpis_list}
 
 ### 🔗 Critical Dependencies
 - **Dependencies:** {action_plan.get('dependencies', 'Regulatory clearance and supplier delivery schedules.')}
@@ -70,13 +74,14 @@ def report_agent(state: AgentState) -> AgentState:
         tag = "[SOURCE FACT]" if doc.get("is_user_knowledge_base", False) else "[KNOWLEDGE STATUS]"
         rag_sources_md += f"- **Document:** `{doc.get('filename')}` | **Page:** {doc.get('page_number', 1)} | **Chunk ID:** `{doc.get('chunk_id')}` `{tag}`\n  - *Extracted FactSnippet*: {doc.get('content', '')[:160]}...\n"
 
-    web_sources_md = "".join([f"- [{res.get('title', 'Web Source')}]({res.get('url', '#')}): {res.get('snippet', '')[:140]}...\n" for res in state.get('research_data', [])])
+    web_sources_md = "\n".join([f"- [{res.get('title', 'Web Source')}]({res.get('url', '#')}): {res.get('snippet', '')[:140]}..." for res in state.get('research_data', [])])
+    why_dec_list = "\n".join([str(factor) for factor in why_dec.get('key_decision_factors', [])])
 
     # Construct Complete Markdown Business Report
     report_md = f"""# 📊 BUSINESS DECISION REPORT
 
 **Inquiry:** {query}  
-**Date:** 2026-09-05 | **System Confidence Score:** `{confidence_score}%` | **Verification Status:** `{fact_audit.get('overall_status', 'PASSED')}`
+**Date:** 2026-09-07 | **System Confidence Score:** `{confidence_score}%` | **Verification Status:** `{fact_audit.get('overall_status', 'PASSED')}`
 
 ---
 
@@ -96,7 +101,7 @@ Based on multi-agent market evaluation, internal document RAG retrieval, competi
 
 ## ❓ Why This Decision? (Executive Decision Rationale)
 
-{"".join([f"{factor}\n" for factor in why_dec.get('key_decision_factors', [])])}
+{why_dec_list}
 
 **Score Rationale Summary:** {why_dec.get('score_summary', '')}
 
